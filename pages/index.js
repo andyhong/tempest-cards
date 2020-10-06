@@ -100,7 +100,7 @@ const Home = ({ cards }) => {
 }
 
 export async function getServerSideProps() {
-  const data = await fetch(`http://localhost:3000/api/cards`)
+  const data = await fetch(`${process.env.API_URL}/api/cards`)
   const cards = await data.json()
   return {
     props: {

@@ -1,53 +1,88 @@
+import { useState } from 'react'
 import Head from 'next/head'
 import styles from '../styles/Home.module.css'
+import { Form, Table } from 'react-bootstrap'
+import fetch from 'isomorphic-unfetch'
 
-export default function Home() {
+const Home = ({ cards }) => {
+
+  const [selectedCategories, setSelectedCategories] = useState([])
+
+  const other = ["other_sports", "non_sport"]
+  const categories = {
+    baseball: "⚾",
+    basketball: "🏀",
+    football: "🏈",
+    hockey: "🏒",
+    other: "🃏",
+    gaming: "🎮",
+  }
+
+  const formattedCards = cards
+    .map(card => {
+      return other.includes(card.category) ? { ...card, category: "other" } : { ...card }
+    })
+    .map(card => {
+      return { ...card, name: `${categories[card.category]} ${card.name}`, date: new Date(card.release_date) }
+    })
+    .filter(card => card.date >= Date.now())
+    .sort((a, b) => a.date - b.date)
+
+  const columns = Object.keys(categories).sort()
+  console.log(columns)
+
+  function search(rows) {
+    return selectedCategories.length === 0
+      ? rows
+      : rows.filter(row => selectedCategories.includes(row.category))
+  }
+
   return (
     <div className={styles.container}>
       <Head>
-        <title>Create Next App</title>
+        <title>Tempest Cards</title>
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
       <main className={styles.main}>
         <h1 className={styles.title}>
-          Welcome to <a href="https://nextjs.org">Next.js!</a>
+          Tempest Cards Calendar
         </h1>
-
-        <p className={styles.description}>
-          Get started by editing{' '}
-          <code className={styles.code}>pages/index.js</code>
-        </p>
-
-        <div className={styles.grid}>
-          <a href="https://nextjs.org/docs" className={styles.card}>
-            <h3>Documentation &rarr;</h3>
-            <p>Find in-depth information about Next.js features and API.</p>
-          </a>
-
-          <a href="https://nextjs.org/learn" className={styles.card}>
-            <h3>Learn &rarr;</h3>
-            <p>Learn about Next.js in an interactive course with quizzes!</p>
-          </a>
-
-          <a
-            href="https://github.com/vercel/next.js/tree/master/examples"
-            className={styles.card}
-          >
-            <h3>Examples &rarr;</h3>
-            <p>Discover and deploy boilerplate example Next.js projects.</p>
-          </a>
-
-          <a
-            href="https://vercel.com/import?filter=next.js&utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-            className={styles.card}
-          >
-            <h3>Deploy &rarr;</h3>
-            <p>
-              Instantly deploy your Next.js site to a public URL with Vercel.
-            </p>
-          </a>
-        </div>
+        <Form>
+          <div>
+            {columns && columns.map(column => (
+              <Form.Check
+                inline
+                label={column}
+                type="checkbox"
+                id={column}
+                checked={selectedCategories.includes(column)}
+                onChange={(e) => {
+                  const checked = selectedCategories.includes(column)
+                  setSelectedCategories(prev => checked
+                    ? prev.filter(sc => sc !== column)
+                    : [...prev, column])
+                }}
+                />
+            ))}
+          </div>
+        </Form>
+        <Table>
+          <thead>
+            <tr>
+              <th>Set Name</th>
+              <th>Release Date</th>
+            </tr>
+          </thead>
+          <tbody>
+            {search(formattedCards).map(card => (
+              <tr key={card._id}>
+                <td>{ card.name }</td>
+                <td>{ card.release_date }</td>
+              </tr>
+            ))}
+          </tbody>
+        </Table>
       </main>
 
       <footer className={styles.footer}>
@@ -63,3 +98,15 @@ export default function Home() {
     </div>
   )
 }
+
+export async function getServerSideProps() {
+  const data = await fetch(`http://localhost:3000/api/cards`)
+  const cards = await data.json()
+  return {
+    props: {
+      cards,
+    }
+  }
+}
+
+export default Home

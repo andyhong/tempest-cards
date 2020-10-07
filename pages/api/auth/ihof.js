@@ -23,7 +23,7 @@ handler.get(async (req, res) => {
       }
     })
     const guilds = await response.json()
-    const isMember = guilds.filter(guild => guild.id === "653778768439279676")
+    const isMember = guilds.filter(guild => guild.id == "463050987138056223")
     isMember.length > 0 ? res.send(true) : res.send(false)
   }
   else {

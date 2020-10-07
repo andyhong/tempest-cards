@@ -1,7 +1,6 @@
-import { signIn, signOut, useSession } from 'next-auth/client'
+import { getSession, signIn, signOut, useSession } from 'next-auth/client'
 
-const Test = ({ isMember }) => {
-  const [ session, loading ] = useSession()
+const Test = ({ session, isMember }) => {
 
   return (
     <div>
@@ -23,11 +22,20 @@ const Test = ({ isMember }) => {
   )
 }
 
-export async function getServerSideProps() {
-  const response = await fetch(`${process.env.API_URL}/api/auth/ihof`)
-  const isMember = await response.json()
+export async function getServerSideProps(context) {
+  const session = await getSession(context)
+  let isMember = null
+
+  if (session) {
+    const options = { headers: { cookie: context.req.headers.cookie } }
+    const response = await fetch(`${process.env.API_URL}/api/auth/ihof`, options)
+    const json = await response.json()
+    isMember = json
+  }
+
   return {
     props: {
+      session,
       isMember
     }
   }

@@ -15,7 +15,6 @@ handler.get(async (req, res) => {
     const account = await req.db.collection("accounts").findOne({
       userId: ObjectId(session.user.id)
     })
-    const accessToken = account.accessToken
     const response = await fetch(`https://discord.com/api/users/@me/guilds`, {
       method: "GET",
       headers: {
@@ -23,11 +22,19 @@ handler.get(async (req, res) => {
       }
     })
     const guilds = await response.json()
-    const isMember = guilds.filter(guild => guild.id == "463050987138056223")
-    isMember.length > 0 ? res.send(true) : res.send(false)
+    const isMember = guilds.filter(guild => guild.id == "653778768439279676")
+    isMember.length > 0
+      ? res.json({
+        isMember: true
+      })
+      : res.json({
+        isMember: false
+      })
   }
   else {
-    res.send(false)
+    res.json({
+      isMember: false
+    })
   }
 })
 

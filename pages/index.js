@@ -29,7 +29,6 @@ const Home = ({ cards }) => {
     .sort((a, b) => a.date - b.date)
 
   const columns = Object.keys(categories).sort()
-  console.log(columns)
 
   function search(rows) {
     return selectedCategories.length === 0
@@ -49,11 +48,12 @@ const Home = ({ cards }) => {
           Tempest Cards Calendar
         </h1>
         <Form>
-          <div>
+          <div className={styles.filters}>
             {columns && columns.map(column => (
               <Form.Check
                 inline
-                label={column}
+                key={column}
+                label={categories[column]}
                 type="checkbox"
                 id={column}
                 checked={selectedCategories.includes(column)}

@@ -1,6 +1,6 @@
 import { getSession, signIn, signOut, useSession } from 'next-auth/client'
 
-const Test = ({ session, isMember }) => {
+const Test = ({ session, user }) => {
 
   return (
     <div>
@@ -8,13 +8,13 @@ const Test = ({ session, isMember }) => {
         Not signed in <br />
         <button onClick={signIn}> Sign in </button>
       </>}
-      {session && !isMember && <>
-        Signed in as {session.user.email} <br />
+      {session && !user.ihofMember && <>
+        Signed in as <strong>{`${user.username}#${user.discriminator}`}</strong> <br />
         You are not currently a member of IHOF <br />
         <button onClick={signOut}> Sign out</button>
       </>}
-      {session && isMember && <>
-        Signed in as {session.user.email} <br />
+      {session && user.ihofMember && <>
+        Signed in as <strong>{`${user.username}#${user.discriminator}`}</strong> <br />
         Protected content <br />
         <button onClick={signOut}> Sign out</button>
       </>}
@@ -24,19 +24,19 @@ const Test = ({ session, isMember }) => {
 
 export async function getServerSideProps(context) {
   const session = await getSession(context)
-  let isMember = null
+  let user = null
 
   if (session) {
     const options = { headers: { cookie: context.req.headers.cookie } }
-    const response = await fetch(`${process.env.API_URL}/api/auth/ihof`, options)
+    const response = await fetch(`${process.env.API_URL}/api/auth/me`, options)
     const json = await response.json()
-    isMember = json
+    user = json
   }
 
   return {
     props: {
       session,
-      isMember
+      user
     }
   }
 }

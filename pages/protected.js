@@ -24,7 +24,7 @@ const Test = ({ isMember }) => {
 }
 
 export async function getServerSideProps() {
-  const response = await fetch(`http://localhost:3000/api/auth/ihof`)
+  const response = await fetch(`${process.env.API_URL}/api/auth/ihof`)
   const isMember = await response.json()
   return {
     props: {

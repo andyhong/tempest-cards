@@ -1,4 +1,4 @@
-import { getSession, signIn, signOut, useSession } from 'next-auth/client'
+import { getSession, signIn, signOut} from 'next-auth/client'
 
 const Test = ({ session, user }) => {
 

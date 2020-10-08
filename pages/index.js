@@ -1,8 +1,10 @@
 import { useState } from 'react'
 import Head from 'next/head'
 import styles from '../styles/Home.module.css'
-import { Form, Table } from 'react-bootstrap'
+import { Box, Heading, Stat, StatLabel, StatNumber, StatHelpText } from '@chakra-ui/core'
+import Table from '../components/Table'
 import fetch from 'isomorphic-unfetch'
+import CategoryFilter from '../components/CategoryFilter'
 
 const Home = ({ cards }) => {
 
@@ -36,6 +38,10 @@ const Home = ({ cards }) => {
       : rows.filter(row => selectedCategories.includes(row.category))
   }
 
+  function updateFilter(e) {
+    setSelectedCategories(e)
+  }
+
   return (
     <div className={styles.container}>
       <Head>
@@ -43,47 +49,50 @@ const Home = ({ cards }) => {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <main className={styles.main}>
-        <h1 className={styles.title}>
-          Tempest Cards Calendar
-        </h1>
-        <Form>
-          <div className={styles.filters}>
-            {columns && columns.map(column => (
-              <Form.Check
-                inline
-                key={column}
-                label={categories[column]}
-                type="checkbox"
-                id={column}
-                checked={selectedCategories.includes(column)}
-                onChange={(e) => {
-                  const checked = selectedCategories.includes(column)
-                  setSelectedCategories(prev => checked
-                    ? prev.filter(sc => sc !== column)
-                    : [...prev, column])
-                }}
-                />
-            ))}
-          </div>
-        </Form>
-        <Table>
-          <thead>
-            <tr>
-              <th>Set Name</th>
-              <th>Release Date</th>
-            </tr>
-          </thead>
-          <tbody>
-            {search(formattedCards).map(card => (
-              <tr key={card._id}>
-                <td>{ card.name }</td>
-                <td>{ card.release_date }</td>
-              </tr>
-            ))}
-          </tbody>
-        </Table>
-      </main>
+      <Box
+        maxWidth="960px"
+        py="3rem"
+        display="flex"
+        flexDirection="column"
+        >
+        <Heading
+          as="h1"
+          fontSize="4rem"
+          textAlign="center"
+          fontWeight="900"
+          lineHeight="1.15"
+          letterSpacing="-0.1rem"
+        >
+          Card Release Calendar
+        </Heading>
+        <Box
+          display="flex">
+          <CategoryFilter categories={categories} columns={columns} onChange={updateFilter}/>
+          <Stat
+            px={6}
+            py={4}
+            backgroundColor="white"
+            borderRadius="1.5rem"
+            backgroundColor="white"
+            boxShadow="lg"
+            overflow="hidden"
+            mx={2}
+            my={6}
+            textAlign="center"
+            >
+            <StatLabel
+              mt={1}
+              color="gray.500"
+              fontWeight="500"
+            >
+              CURRENTLY TRACKING
+            </StatLabel>
+            <StatNumber>{formattedCards.length}</StatNumber>
+            <StatHelpText>CARD SETS</StatHelpText>
+          </Stat>
+        </Box>
+        <Table data={search(formattedCards)} categories={selectedCategories} />
+      </Box>
 
       <footer className={styles.footer}>
         <a
